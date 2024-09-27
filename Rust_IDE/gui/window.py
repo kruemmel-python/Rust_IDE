@@ -1,5 +1,5 @@
-# window.py
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QTextEdit, QSplitter, QFileDialog, QMessageBox
+# gui/window.py
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QTextEdit, QSplitter, QFileDialog, QMessageBox, QAction, QMenuBar
 from PyQt5.QtCore import QProcess, Qt
 from gui.widgets import create_menu_bar
 from editor import RustEditor
@@ -12,10 +12,12 @@ from cargo_toml_manager import TomlManager
 from ide_git import GitIntegration  # Hinzugefügt für Git-Integration
 from codestral import CodestralCompletionPlugin
 from layout import LayoutSettings  # Importiere die LayoutSettings
+from plugin_manager import PluginManager
 
 class RustIDEWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.setWindowTitle("Rust IDE mit Plugins")
 
         # Setze das Fenster-Icon
         icon_path = os.path.join('resources', 'icons', 'project_icon.ico')
@@ -24,15 +26,8 @@ class RustIDEWindow(QMainWindow):
         self.setWindowTitle("Rust IDE")
         self.setGeometry(300, 300, 1000, 600)  # Fenstergröße erweitert
 
-
-        # RustIntegration für Build/Run/Debug
-        self.rust_integration = RustIntegration(self)
-
-        # Git-Integration
-        self.git_integration = GitIntegration(self)  # Git-Integration wird hier initialisiert
-
         # Editor mit Syntax-Highlighting
-        self.editor = RustEditor()
+        self.editor = RustEditor()  # Zuerst den Editor initialisieren
         self.output_area = QTextEdit(self)
         self.output_area.setReadOnly(True)
 
@@ -65,11 +60,56 @@ class RustIDEWindow(QMainWindow):
         # Layout-Einstellungen
         self.layout_settings = LayoutSettings(self)
 
+        # RustIntegration für Build/Run/Debug
+        self.rust_integration = RustIntegration(self)
+
+        # Git-Integration
+        self.git_integration = GitIntegration(self)  # Git-Integration wird hier initialisiert
+
         # Menüleiste erstellen
         create_menu_bar(self)
+
+        # Plugin Manager, übergibt die IDE-Referenz (self)
+        self.plugin_manager = PluginManager("plugins", self)
+        self.plugin_manager.load_plugins()
+
+        # Menüs erstellen und Plugins einbinden
+        menu_bar = self.menuBar()
+        plugin_menu = menu_bar.addMenu("Plugins")
+
+        for plugin in self.plugin_manager.plugins:
+            action = QAction(plugin.__class__.__name__, self)
+            action.triggered.connect(plugin.execute)
+            plugin_menu.addAction(action)
+
         # Hier initialisieren wir das Codestral-Plugin
         self.codestral_plugin = CodestralCompletionPlugin(self)
         # self.codestral_plugin.initialize()
+
+    def log_to_output(self, message):
+        """Schreibt eine Log-Nachricht in die Ausgabekonsole."""
+        self.output_area.append(message)
+
+    def add_action_to_menu(self, menu_name, action):
+        """Fügt eine Aktion zu einem vorhandenen Menü hinzu oder erstellt ein neues Menü."""
+        menu_bar = self.menuBar()
+        menu = menu_bar.findChild(QMenuBar, menu_name)
+
+        if not menu:
+            # Falls das Menü noch nicht existiert, erstelle ein neues
+            menu = menu_bar.addMenu(menu_name)
+
+        # Füge die Aktion hinzu
+        menu.addAction(action)
+
+    def remove_action_from_menu(self, menu_name, action):
+        """Entfernt eine Aktion von einem Menü."""
+        menu_bar = self.menuBar()
+        menu = menu_bar.findChild(QMenuBar, menu_name)
+
+        if menu:
+            # Entferne die Aktion, wenn das Menü existiert
+            menu.removeAction(action)
 
 
     def load_project(self, project_path):
@@ -110,9 +150,6 @@ class RustIDEWindow(QMainWindow):
         except Exception as e:
             print(f"Fehler beim Laden des Projekts: {e}")
             QMessageBox.critical(self, "Fehler", f"Fehler beim Laden des Projekts: {e}")
-
-
-
 
     # Funktion für 'cargo clean'
     def clean_project(self):

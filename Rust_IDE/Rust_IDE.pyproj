@@ -22,6 +22,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="codestral.py" />
+    <Compile Include="plugins\DocumentationGeneratorPlugin.py" />
     <Compile Include="editor.py" />
     <Compile Include="explorer.py" />
     <Compile Include="gui\widgets.py" />
@@ -29,15 +30,21 @@
     <Compile Include="ide_git.py" />
     <Compile Include="layout.py" />
     <Compile Include="main.py" />
+    <Compile Include="my_new_plugin.py" />
+    <Compile Include="plugins\hover_plugin.py" />
+    <Compile Include="plugins\plugin_interface.py" />
+    <Compile Include="plugin_manager.py" />
     <Compile Include="rust_integration.py" />
     <Compile Include="cargo_toml_manager.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="gui\" />
+    <Folder Include="plugins\" />
     <Folder Include="resources\" />
     <Folder Include="resources\icons\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="plugin_erstellen.md" />
     <Content Include="README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

@@ -1,5 +1,5 @@
 # editor.py
-# editor.py
+
 from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat, QColor, QFont
 from PyQt5.QtCore import QRegExp
 from PyQt5.QtWidgets import QTextEdit
