@@ -33,6 +33,7 @@
     <Compile Include="my_new_plugin.py" />
     <Compile Include="plugins\hover_plugin.py" />
     <Compile Include="plugins\plugin_interface.py" />
+    <Compile Include="plugins\UnittestPlugin.py" />
     <Compile Include="plugin_manager.py" />
     <Compile Include="rust_integration.py" />
     <Compile Include="cargo_toml_manager.py" />
