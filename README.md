@@ -133,3 +133,6 @@ Das **Hover Information Plugin** zeigt zusätzliche Informationen zu Codeelement
 
 Mit dem Plugin-System kannst du deine Rust-Entwicklungsumgebung flexibel erweitern, ohne Änderungen am Hauptprogramm vornehmen zu müssen.
 
+[Video ansehen: Rust Tutorial](https://nextgeninnovators.de/rust.mp4)
+
+
