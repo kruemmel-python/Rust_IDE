@@ -1,16 +1,8 @@
-![image](https://github.com/user-attachments/assets/fa9a8816-9008-41bc-893f-aab8cef880fe)
-
-![image](https://github.com/user-attachments/assets/7f2d2952-f4fc-49d4-8f96-0df0802d4699)
-
-![image](https://github.com/user-attachments/assets/320d7617-8c71-4e1e-9e07-067028f977b2)
-
-
-
 ---
 
 # Rust IDE
 
-Eine umfassende Entwicklungsumgebung für Rust, die alle wesentlichen Funktionen zur Entwicklung, Erstellung und zum Debuggen von Rust-Projekten bietet. Die IDE unterstützt das Erstellen neuer Rust-Projekte, das Öffnen bestehender Projekte, die Verwaltung von Abhängigkeiten über die `Cargo.toml` und bietet einen integrierten Debugger. Zusätzlich gibt es erweiterte Funktionen wie **Git-Integration**, **KI-Codevervollständigung** und **Layout-Anpassungen**.
+Eine umfassende Entwicklungsumgebung für Rust, die alle wesentlichen Funktionen zur Entwicklung, Erstellung und zum Debuggen von Rust-Projekten bietet. Die IDE unterstützt das Erstellen neuer Rust-Projekte, das Öffnen bestehender Projekte, die Verwaltung von Abhängigkeiten über die `Cargo.toml` und bietet einen integrierten Debugger. Zusätzlich gibt es erweiterte Funktionen wie **Git-Integration**, **KI-Codevervollständigung**, **Layout-Anpassungen** sowie ein **Plugin-System**, das neue Funktionen ohne Code-Änderungen im Hauptprogramm ermöglicht.
 
 ## Installation
 
@@ -115,3 +107,29 @@ Die Git-Integration ermöglicht es, Versionskontrollfunktionen direkt in der IDE
 - Der Projekt-Explorer zeigt die Verzeichnisstruktur des Projekts an. Dateien können per Doppelklick im Editor geöffnet und bearbeitet werden. Außerdem können neue Dateien oder Ordner erstellt sowie gelöscht werden.
 
 ---
+
+## Plugin-System
+
+Die IDE verfügt über ein Plugin-System, das es ermöglicht, neue Funktionen hinzuzufügen, ohne den Hauptcode der IDE zu ändern. Jedes Plugin wird im Menü unter dem Punkt **Plugins** aufgeführt und kann über das Menü ausgeführt werden.
+
+### Verfügbare Plugins:
+
+#### 1. **Documentation Generator Plugin**
+Das **Documentation Generator Plugin** ermöglicht es, die Dokumentation für das Rust-Projekt mit einem Klick zu generieren. Es verwendet `cargo doc`, um die Dokumentation zu erstellen und zeigt den Fortschritt und das Ergebnis im Ausgabefenster der IDE an.
+
+- **Verwendung**: Wähle im Menü `Plugins -> Dokumentation generieren`, um die Dokumentation zu erstellen.
+
+#### 2. **Code Completion Plugin (Codestral)**
+Das **Code Completion Plugin** ergänzt den Code automatisch mithilfe einer KI-basierten Codevervollständigung. Dies verbessert die Produktivität, indem der Benutzer weniger Tippaufwand hat und schneller arbeiten kann.
+
+- **Verwendung**: Wähle im Menü `Code -> Code vervollständigen`, um Vorschläge für die Codevervollständigung zu erhalten.
+
+#### 3. **Hover Information Plugin**
+Das **Hover Information Plugin** zeigt zusätzliche Informationen zu Codeelementen an, wenn der Mauszeiger über sie bewegt wird. Es bietet schnelle Einblicke in Dokumentationen oder Funktionsdefinitionen.
+
+- **Verwendung**: Fahre mit der Maus über ein Codeelement, um relevante Informationen anzuzeigen.
+
+---
+
+Mit dem Plugin-System kannst du deine Rust-Entwicklungsumgebung flexibel erweitern, ohne Änderungen am Hauptprogramm vornehmen zu müssen.
+
