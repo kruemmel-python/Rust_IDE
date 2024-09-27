@@ -1,6 +1,7 @@
 ---
 
 # Rust IDE
+https://nextgeninnovators.de/Rust_IDE.zip   hier ist eine bereits fertige Programmdatei für Windows. Voraussetzung die Installation von Rust wie unten beschrieben
 
 Eine umfassende Entwicklungsumgebung für Rust, die alle wesentlichen Funktionen zur Entwicklung, Erstellung und zum Debuggen von Rust-Projekten bietet. Die IDE unterstützt das Erstellen neuer Rust-Projekte, das Öffnen bestehender Projekte, die Verwaltung von Abhängigkeiten über die `Cargo.toml` und bietet einen integrierten Debugger. Zusätzlich gibt es erweiterte Funktionen wie **Git-Integration**, **KI-Codevervollständigung**, **Layout-Anpassungen** sowie ein **Plugin-System**, das neue Funktionen ohne Code-Änderungen im Hauptprogramm ermöglicht.
 
