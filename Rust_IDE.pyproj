@@ -1,0 +1,62 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>1ff94be9-f66e-4aee-90f3-a0697ee0caa0</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>main.py</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <Name>Rust_IDE</Name>
+    <RootNamespace>Rust_IDE</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="codestral.py" />
+    <Compile Include="plugins\DocumentationGeneratorPlugin.py" />
+    <Compile Include="editor.py" />
+    <Compile Include="explorer.py" />
+    <Compile Include="gui\widgets.py" />
+    <Compile Include="gui\window.py" />
+    <Compile Include="ide_git.py" />
+    <Compile Include="layout.py" />
+    <Compile Include="main.py" />
+    <Compile Include="my_new_plugin.py" />
+    <Compile Include="plugins\formater.py" />
+    <Compile Include="plugins\plugin_interface.py" />
+    <Compile Include="plugins\quickfix.py" />
+    <Compile Include="plugins\refactoring.py" />
+    <Compile Include="plugins\UnittestPlugin.py" />
+    <Compile Include="plugin_manager.py" />
+    <Compile Include="rust_integration.py" />
+    <Compile Include="cargo_toml_manager.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="gui\" />
+    <Folder Include="plugins\" />
+    <Folder Include="resources\" />
+    <Folder Include="resources\icons\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="plugin_erstellen.md" />
+    <Content Include="README.md" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+  <!-- Uncomment the CoreCompile target to enable the Build command in
+       Visual Studio and specify your pre- and post-build commands in
+       the BeforeBuild and AfterBuild targets below. -->
+  <!--<Target Name="CoreCompile" />-->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+</Project>
