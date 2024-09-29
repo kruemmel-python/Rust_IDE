@@ -1,10 +1,8 @@
-# rust_integration.py
 import os
 from PyQt5.QtCore import QProcess
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from cargo_toml_manager import TomlManager
 import subprocess
-
 
 class RustIntegration:
     def __init__(self, parent):
@@ -54,7 +52,7 @@ class RustIntegration:
                         # Lade und passe die Cargo.toml Datei automatisch an
                         self.toml_manager = TomlManager(self.project_path, self.parent.output_area)
                         cargo_data = self.toml_manager.load_cargo_toml()
-                    
+
                         # Optional: Standard-Abhängigkeiten oder Profile hinzufügen
                         cargo_data['profile'] = {
                             'dev': {
@@ -65,13 +63,27 @@ class RustIntegration:
                         # Speichere die aktualisierte Cargo.toml
                         self.toml_manager.save_cargo_toml(cargo_data)
                         self.parent.output_area.append("Cargo.toml Datei erfolgreich initialisiert.")
+
+                        # Lade das Projekt in den Projekt-Explorer
+                        self.parent.load_project(self.project_path)
+
+                        # Öffne die main.rs-Datei im Editor
+                        main_rs_path = os.path.join(self.project_path, "src", "main.rs")
+                        if os.path.exists(main_rs_path):
+                            with open(main_rs_path, 'r', encoding='utf-8') as f:
+                                main_rs_data = f.read()
+                                self.parent.editor.setPlainText(main_rs_data)
+                                self.current_file = main_rs_path  # Setze den aktuellen Dateipfad
+                            self.parent.output_area.append(f"main.rs erfolgreich geladen: {main_rs_path}")
+                        else:
+                            QMessageBox.warning(self.parent, "Fehler", "main.rs nicht gefunden.")
+                            self.parent.output_area.append("main.rs Datei nicht gefunden.")
                     else:
                         QMessageBox.critical(self.parent, "Fehler", "Cargo.toml Datei wurde nicht gefunden.")
                 else:
                     QMessageBox.critical(self.parent, "Fehler", "Projekt konnte nicht erstellt werden.")
             except Exception as e:
                 QMessageBox.critical(self.parent, "Fehler", f"Fehler beim Erstellen des Projekts: {e}")
-
 
     def open_main_rs(self):
         main_rs_path = os.path.join(self.project_path, 'src', 'main.rs')
@@ -87,7 +99,6 @@ class RustIntegration:
                     self.parent.editor.setPlainText(code)
                     self.current_file = main_rs_path
 
-
     def open_cargo_toml(self):
         """Öffne die Cargo.toml Datei im Editor."""
         cargo_toml_path = os.path.join(self.project_path, 'Cargo.toml')
@@ -102,8 +113,6 @@ class RustIntegration:
                 self.parent.output_area.append(f"Fehler beim Öffnen der Cargo.toml Datei: {e}")
         else:
             QMessageBox.warning(self.parent, "Warnung", "Cargo.toml Datei nicht gefunden.")
-
-
 
     def save_project(self):
         """Speichert die aktuell geöffnete Datei und fügt fehlende Bibliotheken zur Cargo.toml hinzu."""
@@ -124,9 +133,6 @@ class RustIntegration:
                 self.parent.output_area.append(f"Fehler beim Speichern der Datei: {e}")
         else:
             QMessageBox.warning(self.parent, "Warnung", "Keine Datei zum Speichern geöffnet.")
-
-
-
 
     def add_dependencies_from_code(self):
         """Analysiere den Code und füge fehlende Abhängigkeiten der Cargo.toml hinzu."""
@@ -162,7 +168,6 @@ class RustIntegration:
         except Exception as e:
             self.parent.output_area.append(f"Fehler beim Hinzufügen von Abhängigkeiten zur Cargo.toml: {e}")
 
-
     def extract_libraries_from_code(self, code):
         """
         Extrahiere Bibliotheksnamen aus dem Rust-Code basierend auf 'use'-Statements.
@@ -178,7 +183,6 @@ class RustIntegration:
                 libraries.add(lib)
 
         return libraries
-
 
     def set_debug_mode(self):
         self.build_mode = 'debug'
@@ -206,8 +210,6 @@ class RustIntegration:
         except Exception as e:
             QMessageBox.critical(self.parent, "Fehler", f"Fehler beim Ausführen des Projekts: {e}")
 
-
-
     def read_build_output(self):
         """Liest die Echtzeit-Ausgabe des Build-Prozesses."""
         output = self.build_process.readAllStandardOutput().data().decode()
@@ -222,7 +224,6 @@ class RustIntegration:
                 self.parent.output_area.append(f"Build fehlgeschlagen. Exit Code: {exit_code}")
         else:
             print(f"Build-Prozess beendet, aber output_area ist nicht verfügbar. Exit Code: {exit_code}")
-
 
     def start_debugger(self):
         """Startet den gdb Debugger."""

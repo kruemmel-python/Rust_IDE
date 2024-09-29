@@ -56,8 +56,10 @@ class ProjectExplorer(QTreeView):
         menu.exec_(self.viewport().mapToGlobal(position))
 
     def open_file_in_editor(self, index):
-        """Öffne die ausgewählte Datei im Editor."""
+        """Öffne die ausgewählte Datei oder lade das Projekt, falls ein Ordner ausgewählt ist."""
         file_path = self.model.filePath(index)
+    
+        # Wenn es sich um eine Datei handelt, öffne sie im Editor
         if os.path.isfile(file_path):
             try:
                 with open(file_path, 'r', encoding='utf-8') as f:
@@ -67,6 +69,15 @@ class ProjectExplorer(QTreeView):
                 self.parent.output_area.append(f"Datei {file_path} im Editor geöffnet.")
             except Exception as e:
                 self.parent.output_area.append(f"Fehler beim Öffnen der Datei {file_path}: {e}")
+    
+        # Wenn es sich um einen Ordner handelt, überprüfe, ob es sich um ein Rust-Projekt handelt
+        elif os.path.isdir(file_path):
+            cargo_toml_path = os.path.join(file_path, 'Cargo.toml')
+            if os.path.exists(cargo_toml_path):
+                self.parent.load_project(file_path)  # Lade das Projekt und die main.rs
+            else:
+                self.parent.output_area.append(f"Kein Cargo.toml in {file_path} gefunden.")
+
 
 
 

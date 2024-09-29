@@ -27,6 +27,10 @@ class HoverWithQuickfixPlugin(QObject, PluginInterface):
         self.ide.output_area.append("Hover with Quickfix Plugin deaktiviert.")
         self.editor.viewport().removeEventFilter(self)
 
+    def execute(self):
+        """Die erforderliche Methode, die aus dem PluginInterface implementiert wird."""
+        self.ide.output_area.append("HoverWithQuickfixPlugin ausgeführt!")
+
     def eventFilter(self, source, event):
         """Überwacht Mausbewegungen, um Hover-Events zu behandeln."""
         if event.type() == event.MouseMove and source is self.editor.viewport():
@@ -45,14 +49,13 @@ class HoverWithQuickfixPlugin(QObject, PluginInterface):
 
     def show_context_menu(self, position):
         """Zeigt das Kontextmenü an, um Quickfix-Optionen anzubieten."""
-        cursor = self.editor.cursorForPosition(position)
-        cursor.select(QTextCursor.WordUnderCursor)
-        selected_text = cursor.selectedText()
+        cursor = self.editor.textCursor()  # Verwende den TextCursor, um den gesamten markierten Text zu erhalten
+        selected_text = cursor.selectedText().strip()  # Entferne eventuelle Leerzeichen um den Text
 
         if selected_text:
             context_menu = QMenu(self.editor)
 
-            # Quickfix Aktion, um ein Beispiel und eine Erklärung für das angeklickte Wort anzuzeigen
+            # Quickfix Aktion, um ein Beispiel und eine Erklärung für den markierten Text anzuzeigen
             quickfix_action = context_menu.addAction(f"Beispiel und Erklärung für '{selected_text}' über Codestral")
 
             # Menü für Schriftgrößenänderung
@@ -63,7 +66,7 @@ class HoverWithQuickfixPlugin(QObject, PluginInterface):
             action = context_menu.exec_(self.editor.mapToGlobal(position))
 
             if action == quickfix_action:
-                self.run_quickfix(selected_text)
+                self.run_quickfix(selected_text)  # Den markierten Text als Argument übergeben
             elif action == increase_font_action:
                 self.change_font_size(2)
             elif action == decrease_font_action:
@@ -74,9 +77,15 @@ class HoverWithQuickfixPlugin(QObject, PluginInterface):
         self.font_size = max(8, self.font_size + adjustment)  # Begrenze die minimale Schriftgröße auf 8
         self.ide.output_area.append(f"Schriftgröße geändert: {self.font_size}pt")
 
-    def run_quickfix(self, function_name):
+    def run_quickfix(self, selected_text):
         """Führt den Quickfix über die Codestral Chat-API aus und zeigt das Beispiel und die Erklärung an."""
-        self.ide.output_area.append(f"Beispiel und Erklärung für '{function_name}' werden über Codestral angefordert...")
+
+        if not selected_text:
+            # Wenn kein Text markiert wurde, gib eine Warnung aus
+            self.ide.output_area.append("Kein Text ausgewählt. Bitte markiere einen Textbereich.")
+            return
+
+        self.ide.output_area.append(f"Beispiel und Erklärung für den markierten Text:\n'{selected_text}' werden über Codestral angefordert...")
 
         API_KEY = "gzJqoKln4xPgTKO7xE15MhjX0fzrSA6i"  # Dein API-Schlüssel
         headers = {
@@ -89,11 +98,11 @@ class HoverWithQuickfixPlugin(QObject, PluginInterface):
             "messages": [
                 {
                     "role": "system",
-                    "content": "Du bist ein hilfsbereiter KI-Assistent, der Rust-Code mit Erklärung erstellt."
+                    "content": "Du bist ein hilfsbereiter deutsch sprechender Lehrer, der Rust-Code mit Erklärung erstellt."
                 },
                 {
                     "role": "user",
-                    "content": f"Schreibe ein einfaches Rust-Code-Beispiel für die Funktion '{function_name}' und erkläre kurz, wie es funktioniert."
+                    "content": f"Schreibe ein einfaches Rust-Code-Beispiel basierend auf diesem markierten Text: '{selected_text}' und erkläre kurz, wie es funktioniert, und das immer in Deutsch."
                 }
             ],
             "max_tokens": 500,
@@ -114,7 +123,6 @@ class HoverWithQuickfixPlugin(QObject, PluginInterface):
                 if "choices" in response_json and isinstance(response_json["choices"], list) and response_json["choices"]:
                     message = response_json["choices"][0].get("message", {}).get("content", "")
                     if message:
-                       # self.ide.output_area.append(f"Beispiel und Erklärung für '{function_name}':\n{message}")
                         self.show_completion_dialog(message)
                     else:
                         self.ide.output_area.append("Keine gültige 'message' erhalten.")
@@ -131,7 +139,7 @@ class HoverWithQuickfixPlugin(QObject, PluginInterface):
         dialog.setWindowTitle("Beispiel und Erklärung")
 
         # Setze die feste Fenstergröße
-        dialog.setFixedSize(800, 600)  # Beispiel: Fenstergröße 600x400 Pixel
+        dialog.setFixedSize(800, 600)  # Beispiel: Fenstergröße 800x600 Pixel
 
         layout = QVBoxLayout()
 
@@ -181,8 +189,3 @@ class HoverWithQuickfixPlugin(QObject, PluginInterface):
         """Kopiert den Text in die Zwischenablage."""
         pyperclip.copy(text)
         self.ide.output_area.append("Beispiel und Erklärung in die Zwischenablage kopiert.")
-
-
-# Factory-Funktion, um das Plugin zu erstellen
-def create_plugin(ide):
-    return HoverWithQuickfixPlugin(ide)

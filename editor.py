@@ -1,14 +1,24 @@
 # editor.py
 
-from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat, QColor, QFont
+from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat, QColor, QFont, QTextCursor
 from PyQt5.QtCore import QRegExp
 from PyQt5.QtWidgets import QTextEdit
 
 class RustEditor(QTextEdit):
     def __init__(self):
-        super().__init__()
+        super().__init__()        
         self.setPlainText("fn main() {\n    println!(\"Hello, World!\");\n}")
         self.highlighter = RustHighlighter(self.document())
+
+
+    def highlight_text(self, text, fmt):
+        """Markiere Text im Editor."""
+        cursor = self.textCursor()
+        cursor.movePosition(QTextCursor.Start)
+
+        # Suchen des Textes und Anwenden des Formats
+        while cursor.find(text):
+            cursor.mergeCharFormat(fmt)
 
 class RustHighlighter(QSyntaxHighlighter):
     def __init__(self, document):

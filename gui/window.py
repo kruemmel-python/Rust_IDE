@@ -1,17 +1,19 @@
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QTextEdit, QSplitter, QFileDialog, QMessageBox, QAction, QTabWidget, QMenuBar  # QTabWidget hinzugefügt
+from PyQt5.QtWidgets import (
+    QApplication, QMainWindow, QVBoxLayout, QWidget, QTextEdit,
+    QSplitter, QFileDialog, QMessageBox, QAction, QTabWidget, QMenuBar, QToolBar, QInputDialog
+)
 from PyQt5.QtCore import QProcess, Qt
-from gui.widgets import create_menu_bar
+from PyQt5.QtGui import QIcon
 from editor import RustEditor
 from rust_integration import RustIntegration
 from explorer import ProjectExplorer
-from PyQt5.QtGui import QIcon
-from subprocess import run
-import os
-from cargo_toml_manager import TomlManager
-from ide_git import GitIntegration
 from codestral import CodestralCompletionPlugin
-from layout import LayoutSettings
+from layout_settings import LayoutSettings
 from plugin_manager import PluginManager
+from cargo_toml_manager import TomlManager
+
+import subprocess
+import os
 
 class RustIDEWindow(QMainWindow):
     def __init__(self):
@@ -22,11 +24,10 @@ class RustIDEWindow(QMainWindow):
         icon_path = os.path.join('resources', 'icons', 'project_icon.ico')
         self.setWindowIcon(QIcon(icon_path))
 
-        self.setWindowTitle("Rust IDE")
         self.setGeometry(100, 50, 1600, 1000)  # Fenstergröße erweitert
 
         # Füge das QTabWidget hinzu, das verschiedene Tabs (Editor, Dokumentationsvorschau, Ausgabe) verwaltet
-        self.tabs = QTabWidget()  # QTabWidget hinzugefügt
+        self.tabs = QTabWidget()
 
         # Editor mit Syntax-Highlighting
         self.editor = RustEditor()  # Zuerst den Editor initialisieren
@@ -34,7 +35,7 @@ class RustIDEWindow(QMainWindow):
         self.output_area.setReadOnly(True)
 
         # Füge den Editor-Tab zum Tab-Widget hinzu
-        self.tabs.addTab(self.editor, "Editor")  # Füge nur den Editor als Tab hinzu
+        self.tabs.addTab(self.editor, "Editor")
 
         # Projekt-Explorer initialisieren
         self.project_explorer = ProjectExplorer(self)
@@ -57,27 +58,25 @@ class RustIDEWindow(QMainWindow):
         # Hauptlayout
         layout = QVBoxLayout()
         layout.addWidget(vertical_splitter)  # Füge den vertikalen Splitter hinzu
-        
+
         container = QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
 
-        # Layout-Einstellungen
-        self.layout_settings = LayoutSettings(self)
-
         # RustIntegration für Build/Run/Debug
         self.rust_integration = RustIntegration(self)
 
-        # Git-Integration
-        self.git_integration = GitIntegration(self)  # Git-Integration wird hier initialisiert
+
 
         # Menüleiste erstellen
-        create_menu_bar(self)
+        self.create_menu_bar()
+
+        # Layout-Einstellungen initialisieren (nach der Initialisierung des Editors)
+        self.layout_settings = LayoutSettings(self)
 
         # Plugin Manager, übergibt die IDE-Referenz (self)
         self.plugin_manager = PluginManager(self)
         self.plugin_manager.load_plugins()
-
 
         # Menüs erstellen und Plugins einbinden
         menu_bar = self.menuBar()
@@ -91,6 +90,16 @@ class RustIDEWindow(QMainWindow):
         # Hier initialisieren wir das Codestral-Plugin
         self.codestral_plugin = CodestralCompletionPlugin(self)
         # self.codestral_plugin.initialize()
+
+
+
+    def create_menu_bar(self):
+        from gui.widgets import create_menu_bar as create_menu_bar_func
+        create_menu_bar_func(self)
+
+    
+
+    # Weitere API-Interaktionen können hier hinzugefügt werden
 
     def log_to_output(self, message):
         """Schreibt eine Log-Nachricht in die Ausgabekonsole."""
@@ -117,7 +126,6 @@ class RustIDEWindow(QMainWindow):
             # Entferne die Aktion, wenn das Menü existiert
             menu.removeAction(action)
 
-
     def load_project(self, project_path):
         """Lade das Projekt und zeige den Explorer an."""
         try:
@@ -133,26 +141,36 @@ class RustIDEWindow(QMainWindow):
             self.rust_integration.project_path = project_path
             self.rust_integration.toml_manager = TomlManager(project_path, self.output_area)
 
-            # Debugging: Ausgabe des geladenen Projektpfads
-            print(f"Projektpfad erfolgreich gesetzt: {project_path}")
-
             # Git-Integration: Setze den Projektpfad
             self.git_integration.set_project_path(project_path)
 
-            # Öffne die Cargo.toml Datei direkt nach dem Laden des Projekts
+            # Überprüfe, ob eine Cargo.toml existiert
             cargo_toml_path = os.path.join(project_path, "Cargo.toml")
             if os.path.exists(cargo_toml_path):
+                # Lade die Cargo.toml Datei und zeige sie an
                 with open(cargo_toml_path, 'r', encoding='utf-8') as f:
                     cargo_data = f.read()
                     self.editor.setPlainText(cargo_data)
                     self.rust_integration.current_file = cargo_toml_path  # Setze den aktuellen Pfad zur Cargo.toml
-                print(f"Cargo.toml Datei erfolgreich geladen: {cargo_toml_path}")
+                    self.output_area.append(f"Cargo.toml Datei erfolgreich geladen: {cargo_toml_path}")
             else:
                 QMessageBox.warning(self, "Fehler", "Cargo.toml Datei nicht gefunden.")
-                print("Fehler: Cargo.toml Datei nicht gefunden.")
-        
+                self.output_area.append("Cargo.toml Datei nicht gefunden.")
+                return  # Beende das Laden, wenn keine Cargo.toml vorhanden ist
+
+            # Automatisch die main.rs Datei laden, wenn sie existiert
+            main_rs_path = os.path.join(project_path, 'src', 'main.rs')
+            if os.path.exists(main_rs_path):
+                with open(main_rs_path, 'r', encoding='utf-8') as f:
+                    main_rs_data = f.read()
+                    self.editor.setPlainText(main_rs_data)
+                    self.rust_integration.current_file = main_rs_path  # Setze den aktuellen Pfad zur main.rs
+                    self.output_area.append(f"main.rs Datei erfolgreich geladen: {main_rs_path}")
+            else:
+                QMessageBox.warning(self, "Fehler", "main.rs Datei nicht gefunden.")
+                self.output_area.append("main.rs Datei nicht gefunden.")
+
             self.output_area.append(f"Projekt {project_path} erfolgreich geladen.")
-            print(f"Projektpfad: {project_path} geladen und Explorer sichtbar gemacht.")
         except Exception as e:
             print(f"Fehler beim Laden des Projekts: {e}")
             QMessageBox.critical(self, "Fehler", f"Fehler beim Laden des Projekts: {e}")
@@ -163,7 +181,7 @@ class RustIDEWindow(QMainWindow):
         if self.rust_integration.project_path:
             # Debugging-Ausgabe
             self.output_area.append(f"Bereinige das Projekt: {self.rust_integration.project_path}")
-            process = run(["cargo", "clean"], cwd=self.rust_integration.project_path, capture_output=True, text=True)
+            process = subprocess.run(["cargo", "clean"], cwd=self.rust_integration.project_path, capture_output=True, text=True)
             self.output_area.setPlainText(process.stdout + process.stderr)
         else:
             self.output_area.setPlainText("Kein Projekt geöffnet.")

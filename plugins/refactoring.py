@@ -1,4 +1,3 @@
-# plugins/refactor_plugin.py
 from plugins.plugin_interface import PluginInterface
 from PyQt5.QtWidgets import QAction, QInputDialog
 
@@ -14,13 +13,18 @@ class RefactorPlugin(PluginInterface):
     def initialize(self):
         """Initialisierung des Plugins."""
         # Füge die Aktion zum existierenden "Code"-Menü hinzu, ohne ein neues Menü zu erstellen
-       # self.ide.add_action_to_menu('Code', self.action)
+        # self.ide.add_action_to_menu('Code', self.action)
         self.ide.log_to_output("Refactor Plugin aktiviert.")
 
     def deinitialize(self):
         """Aufräumarbeiten des Plugins."""
         self.ide.remove_action_from_menu('Code', self.action)
         self.ide.log_to_output("Refactoring Plugin deaktiviert.")  # Ausgabe in der Konsole
+
+    def execute(self):
+        """Die erforderliche Methode, die vom PluginInterface gefordert wird."""
+        # Dies ist der Code, der ausgeführt wird, wenn das Plugin aktiviert wird.
+        self.refactor_code()
 
     def refactor_code(self):
         """Führt das Code-Refactoring durch."""
